@@ -8,17 +8,21 @@ curl -fsSL https://get.casaos.io | sudo bash
 curl -fsSL https://tailscale.com/install.sh | sh
 sudo apt autoremove
 # Configurations
+wget https://github.com/SaracenRhue/piLab/main/dhcpcd.conf
+wget https://github.com/SaracenRhue/piLab/main/routed-ap.conf
+wget https://github.com/SaracenRhue/piLab/main/dnsmasq.conf
+wget https://github.com/SaracenRhue/piLab/main/hostapd.conf
 sudo hostnamectl set-hostname pilab
 sudo systemctl unmask hostapd.service
-cp dhcpcd.conf /etc/dhcpcd.conf
-cp routed-ap.conf /etc/sysctl.d/routed-ap.conf
+sudo mv dhcpcd.conf /etc/dhcpcd.conf
+sudo mv routed-ap.conf /etc/sysctl.d/routed-ap.conf
 sudo iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
 sudo iptables -A FORWARD -i eth0 -o wlan0 -m state --state RELATED,ESTABLISHED -j ACCEPT
 sudo iptables -A FORWARD -i wlan0 -o eth0 -j ACCEPT
 sudo netfilter-persistent save
 sudo mv /etc/dnsmasq.conf /etc/dnsmasq.conf.old
-cp dnsmasq.conf /etc/dnsmasq.conf
-cp hostapd.conf /etc/hostapd/hostapd.conf
+sudo mv dnsmasq.conf /etc/dnsmasq.conf
+sudo mv hostapd.conf /etc/hostapd/hostapd.conf
 # Services
 sudo systemctl enable hostapd
 sudo systemctl enable dnsmasq
