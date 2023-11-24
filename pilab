@@ -1,0 +1,72 @@
+#!/bin/bash
+
+HOSTAPD_CONF="/etc/hostapd/hostapd.conf"
+
+show_help() {
+    echo "Usage: pilab {command} [options]"
+    echo ""
+    echo "Commands:"
+    echo "  wifi {start|stop|restart|hide|show|24ghz|5ghz} - Control the WiFi access point."
+    echo "  help, -h, --help                               - Show this help message."
+    echo ""
+    echo "Examples:"
+    echo "  pilab wifi start   - Start the WiFi access point."
+    echo "  pilab wifi 5ghz    - Switch to 5 GHz band."
+    echo "  pilab wifi hide    - Hide the WiFi network."
+}
+
+wifi_control() {
+    case "$1" in
+        start)
+            sudo systemctl start hostapd
+            echo "WiFi started."
+            ;;
+        stop)
+            sudo systemctl stop hostapd
+            echo "WiFi stopped."
+            ;;
+        restart)
+            sudo systemctl restart hostapd
+            echo "WiFi restarted."
+            ;;
+        hide)
+            sudo sed -i '/ignore_broadcast_ssid=/c\ignore_broadcast_ssid=1' "$HOSTAPD_CONF"
+            sudo systemctl restart hostapd
+            echo "WiFi is now hidden."
+            ;;
+        show)
+            sudo sed -i '/ignore_broadcast_ssid=/c\ignore_broadcast_ssid=0' "$HOSTAPD_CONF"
+            sudo systemctl restart hostapd
+            echo "WiFi is now visible."
+            ;;
+        24ghz)
+            sudo sed -i '/hw_mode=/c\hw_mode=g' "$HOSTAPD_CONF"
+            sudo sed -i '/channel=/c\channel=6' "$HOSTAPD_CONF"
+            sudo systemctl restart hostapd
+            echo "Switched to 2.4 GHz."
+            ;;
+        5ghz)
+            sudo sed -i '/hw_mode=/c\hw_mode=a' "$HOSTAPD_CONF"
+            sudo sed -i '/channel=/c\channel=36' "$HOSTAPD_CONF"
+            sudo systemctl restart hostapd
+            echo "Switched to 5 GHz."
+            ;;
+        *)
+            show_help
+            exit 1
+    esac
+}
+
+case "$1" in
+    wifi)
+        wifi_control "$2"
+        ;;
+    help|-h|--help)
+        show_help
+        ;;
+    *)
+        echo "Invalid command. For a list of commands, use 'pilab help'."
+        exit 1
+esac
+
+exit 0

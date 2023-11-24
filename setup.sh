@@ -2,16 +2,18 @@
 
 # Dependencies
 sudo apt update && sudo apt upgrade -y
-sudo apt install -y wget git htop samba dnsmasq hostapd dhcpcd5
+sudo apt install -y wget git htop samba dnsmasq hostapd dhcpcd5 deborphan
 sudo DEBIAN_FRONTEND=noninteractive apt install -y netfilter-persistent iptables-persistent
 curl -fsSL https://get.casaos.io | sudo bash
 curl -fsSL https://tailscale.com/install.sh | sh
-sudo apt autoremove
+sudo apt autoremove && sudo apt clean
+sudo deborphan | xargs sudo apt purge
 # Configurations
 wget https://github.com/SaracenRhue/piLab/main/dhcpcd.conf
 wget https://github.com/SaracenRhue/piLab/main/routed-ap.conf
 wget https://github.com/SaracenRhue/piLab/main/dnsmasq.conf
 wget https://github.com/SaracenRhue/piLab/main/hostapd.conf
+wget https://github.com/SaracenRhue/piLab/main/pilab
 sudo hostnamectl set-hostname pilab
 sudo systemctl unmask hostapd.service
 sudo mv dhcpcd.conf /etc/dhcpcd.conf
@@ -23,6 +25,8 @@ sudo netfilter-persistent save
 sudo mv /etc/dnsmasq.conf /etc/dnsmasq.conf.old
 sudo mv dnsmasq.conf /etc/dnsmasq.conf
 sudo mv hostapd.conf /etc/hostapd/hostapd.conf
+sudo mv pilab /usr/local/bin/pilab
+sudo chmod +x /usr/local/bin/pilab
 # Services
 sudo systemctl enable hostapd
 sudo systemctl enable dnsmasq
