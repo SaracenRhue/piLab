@@ -6,16 +6,188 @@ show_help() {
     echo "Usage: pilab {command} [options]"
     echo ""
     echo "Commands:"
-    echo "  wifi {start|stop|restart|hide|show|24ghz|5ghz} - Control the WiFi access point."
-    echo "  help, -h, --help                               - Show this help message."
+    echo "  wifi {command}                              - Control the WiFi access point."
+    echo "    start                                    - Start the WiFi access point."
+    echo "    stop                                     - Stop the WiFi access point."
+    echo "    restart                                  - Restart the WiFi access point."
+    echo "    hide                                     - Hide the WiFi network SSID."
+    echo "    show                                     - Show the WiFi network SSID."
+    echo "    24ghz                                    - Switch to 2.4 GHz frequency band."
+    echo "    5ghz                                     - Switch to 5 GHz frequency band."
+    echo "    show-ssid                                - Show the current WiFi SSID."
+    echo "    change-ssid [new-ssid]                   - Change the WiFi SSID."
+    echo "    show-password                            - Show the current WiFi password."
+    echo "    change-password [new-password]           - Change the WiFi password."
+    echo "  clean                                      - Perform system cleanup and Docker maintenance."
+    echo "  update                                     - Update system packages and Docker containers."
+    echo "  help, -h, --help                           - Show this help message."
     echo ""
     echo "Examples:"
-    echo "  pilab wifi start   - Start the WiFi access point."
-    echo "  pilab wifi 5ghz    - Switch to 5 GHz band."
-    echo "  pilab wifi hide    - Hide the WiFi network."
-    echo "  clean              - Perform system cleanup and Docker maintenance."
-    echo "  pilab update       - Update system packages and Docker containers."
+    echo "  pilab wifi start                           - Start the WiFi access point."
+    echo "  pilab wifi 5ghz                            - Switch to 5 GHz band."
+    echo "  pilab wifi change-ssid MyNewSSID           - Change the WiFi SSID to 'MyNewSSID'."
+    echo "  pilab wifi change-password MyNewPassword   - Change the WiFi password to 'MyNewPassword'."
+    echo "  pilab clean                                - Perform system cleanup and Docker maintenance."
+    echo "  pilab update                               - Update system packages and Docker containers."
 }
+
+
+
+wifi_control() {
+    case "$1" in
+        start)
+            sudo systemctl start hostapd
+            echo "WiFi started."
+            ;;
+        stop)
+            sudo systemctl stop hostapd
+            echo "WiFi stopped."
+            ;;
+        restart)
+            sudo systemctl restart hostapd
+            echo "WiFi restarted."
+            ;;
+        hide)
+            sudo sed -i '/ignore_broadcast_ssid=/c\ignore_broadcast_ssid=1' "$HOSTAPD_CONF"
+            sudo systemctl restart hostapd
+            echo "WiFi is now hidden."
+            ;;
+        show)
+            sudo sed -i '/ignore_broadcast_ssid=/c\ignore_broadcast_ssid=0' "$HOSTAPD_CONF"
+            sudo systemctl restart hostapd
+            echo "WiFi is now visible."
+            ;;
+        24ghz)
+            sudo sed -i '/hw_mode=/c\hw_mode=g' "$HOSTAPD_CONF"
+            sudo sed -i '/channel=/c\channel=6' "$HOSTAPD_CONF"
+            sudo systemctl restart hostapd
+            echo "Switched to 2.4 GHz."
+            ;;
+        5ghz)
+            sudo sed -i '/hw_mode=/c\hw_mode=a' "$HOSTAPD_CONF"
+            sudo sed -i '/channel=/c\channel=36' "$HOSTAPD_CONF"
+            sudo systemctl restart hostapd
+            echo "Switched to 5 GHz."
+            ;;
+        show-ssid|show-name)
+            echo "Current SSID:"
+            grep "^ssid=" "$HOSTAPD_CONF" | cut -d'=' -f2
+            ;;
+        change-ssid|change-name)
+            if [ -z "$2" ]; then
+                echo "Please specify a new SSID."
+                exit 1
+            fi
+            sudo sed -i "s/^ssid=.*/ssid=$2/" "$HOSTAPD_CONF"
+            sudo systemctl restart hostapd
+            echo "SSID changed to $2."
+            ;;
+        show-password|show-pwd)
+            echo "Current WiFi Password:"
+            grep "^wpa_passphrase=" "$HOSTAPD_CONF" | cut -d'=' -f2
+            ;;
+        change-password|change-pwd)
+            if [ -z "$2" ]; then
+                echo "Please specify a new password."
+                exit 1
+            fi
+            sudo sed -i "s/^wpa_passphrase=.*/wpa_passphrase=$2/" "$HOSTAPD_CONF"
+            sudo systemctl restart hostapd
+            echo "Password changed."
+            ;;
+        *)
+            show_help
+            exit 1
+    esac
+}
+
+system_clean() {
+    echo "Performing system cleanup..."
+
+    # Clean up temporary files
+    sudo rm -rf /tmp/*
+    sudo rm -rf /var/tmp/*
+
+    # Clean package cache
+    sudo apt clean
+
+    # Remove unused packages
+    sudo apt autoremove -y
+
+    # Clean Docker (if Docker is installed)
+    if command -v docker &> /dev/null
+    then
+        echo "Cleaning up Docker..."
+        sudo docker system prune -af
+    else
+        echo "Docker is not installed. Skipping Docker cleanup."
+    fi
+
+    echo "System cleanup complete."
+}
+
+system_update() {
+    echo "Updating system packages..."
+    sudo apt update
+    sudo apt upgrade -y
+
+    # Update Docker containers
+    if command -v docker &> /dev/null
+    then
+        echo "Updating Docker containers..."
+
+        # Fetch a list of all containers (running and stopped)
+        containers=$(sudo docker ps -a --format '{{.Names}}')
+
+        for container in $containers; do
+            echo "Updating $container..."
+
+            # Find the image used by the container
+            image=$(sudo docker inspect --format='{{.Config.Image}}' $container)
+
+            # Check if the container is running
+            is_running=$(sudo docker inspect --format='{{.State.Running}}' $container)
+
+            # Pull the latest version of the image
+            sudo docker pull $image
+
+            # Recreate the container with the same parameters
+            sudo docker stop $container
+            sudo docker rm $container
+            sudo docker create --name $container $image
+
+            # Start the container if it was originally running
+            if [ "$is_running" = "true" ]; then
+                sudo docker start $container
+            fi
+        done
+    else
+        echo "Docker is not installed. Skipping Docker updates."
+    fi
+
+    echo "System update complete."
+}
+
+
+case "$1" in
+    wifi)
+        wifi_control "$2"
+        ;;
+    clean)
+        system_clean
+        ;;
+    update)
+        system_update
+        ;;
+    help|-h|--help)
+        show_help
+        ;;
+    *)
+        echo "Invalid command. For a list of commands, use 'pilab help'."
+        exit 1
+esac
+
+exit 0
 
 wifi_control() {
     case "$1" in
