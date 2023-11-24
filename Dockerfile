@@ -21,6 +21,6 @@ RUN echo "deb [signed-by=/usr/share/keyrings/python.gpg] https://www.deb-multime
 
 RUN apt update
 
-WORKDIR /labEnv
+WORKDIR /env
 
 CMD ["bash"]
