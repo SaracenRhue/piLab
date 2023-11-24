@@ -21,6 +21,7 @@ show_help() {
     echo "    status                                   - Show the status of the WiFi network, SSID, and frequency."
     echo "  clean                                      - Perform system cleanup and Docker maintenance."
     echo "  update                                     - Update system packages and Docker containers."
+    echo "  backup appdata                             - Creates a ZIP archive of /DATA/AppData."
     echo "  help, -h, --help                           - Show this help message."
     echo ""
     echo "Examples:"
@@ -180,26 +181,18 @@ system_update() {
     echo "System update complete."
 }
 
+backup_appdata() {
+    echo "Backing up /DATA/AppData..."
+    TIMESTAMP=$(date "+%Y%m%d-%H%M%S")
+    BACKUP_FILE="$HOME/appdata-backup-$TIMESTAMP.zip"
 
-case "$1" in
-    wifi)
-        wifi_control "$2"
-        ;;
-    clean)
-        system_clean
-        ;;
-    update)
-        system_update
-        ;;
-    help|-h|--help)
-        show_help
-        ;;
-    *)
-        echo "Invalid command. For a list of commands, use 'pilab help'."
-        exit 1
-esac
-
-exit 0
+    if [ -d "/DATA/AppData" ]; then
+        zip -r "$BACKUP_FILE" "/DATA/AppData"
+        echo "Backup created at $BACKUP_FILE"
+    else
+        echo "/DATA/AppData directory does not exist. Backup aborted."
+    fi
+}
 
 wifi_control() {
     case "$1" in
@@ -320,6 +313,9 @@ case "$1" in
         ;;
     update)
         system_update
+        ;;
+    "backup appdata")
+        backup_appdata
         ;;
     help|-h|--help)
         show_help
