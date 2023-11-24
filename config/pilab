@@ -18,7 +18,7 @@ show_help() {
     echo "    change-ssid [new-ssid]                   - Change the WiFi SSID."
     echo "    show-password                            - Show the current WiFi password."
     echo "    change-password [new-password]           - Change the WiFi password."
-    echo "    status                                   - Show the status of the WiFi network, SSID, and frequency."
+    echo "    status                                  e - Show the status of the WiFi network, SSID, and frequency."
     echo "  clean                                      - Perform system cleanup and Docker maintenance."
     echo "  update                                     - Update system packages and Docker containers."
     echo "  help, -h, --help                           - Show this help message."
@@ -88,11 +88,24 @@ wifi_control() {
             grep "^wpa_passphrase=" "$HOSTAPD_CONF" | cut -d'=' -f2
             ;;
         change-password|change-pwd)
-            if [ -z "$2" ]; then
-                echo "Please specify a new password."
+            echo "Enter new WiFi password:"
+            read -s new_pwd
+            echo
+            echo "Confirm new WiFi password:"
+            read -s confirm_pwd
+            echo
+
+            if [ "$new_pwd" != "$confirm_pwd" ]; then
+                echo "Passwords do not match. Operation cancelled."
                 exit 1
             fi
-            sudo sed -i "s/^wpa_passphrase=.*/wpa_passphrase=$2/" "$HOSTAPD_CONF"
+
+            if [ -z "$new_pwd" ]; then
+                echo "No password entered. Operation cancelled."
+                exit 1
+            fi
+
+            sudo sed -i "s/^wpa_passphrase=.*/wpa_passphrase=$new_pwd/" "$HOSTAPD_CONF"
             sudo systemctl restart hostapd
             echo "Password changed."
             ;;
