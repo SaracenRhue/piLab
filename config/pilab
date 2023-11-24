@@ -130,17 +130,10 @@ wifi_control() {
 
 system_clean() {
     echo "Performing system cleanup..."
-
-    # Clean up temporary files
     sudo rm -rf /tmp/*
     sudo rm -rf /var/tmp/*
-
-    # Clean package cache
     sudo apt clean
-
-    # Remove unused packages
     sudo apt autoremove -y
-
     # Clean Docker (if Docker is installed)
     if command -v docker &> /dev/null
     then
@@ -157,32 +150,24 @@ system_update() {
     echo "Updating system packages..."
     sudo apt update
     sudo apt upgrade -y
-
     # Update Docker containers
     if command -v docker &> /dev/null
     then
         echo "Updating Docker containers..."
-
         # Fetch a list of all containers (running and stopped)
         containers=$(sudo docker ps -a --format '{{.Names}}')
-
         for container in $containers; do
             echo "Updating $container..."
-
             # Find the image used by the container
             image=$(sudo docker inspect --format='{{.Config.Image}}' $container)
-
             # Check if the container is running
             is_running=$(sudo docker inspect --format='{{.State.Running}}' $container)
-
             # Pull the latest version of the image
             sudo docker pull $image
-
             # Recreate the container with the same parameters
             sudo docker stop $container
             sudo docker rm $container
             sudo docker create --name $container $image
-
             # Start the container if it was originally running
             if [ "$is_running" = "true" ]; then
                 sudo docker start $container
