@@ -1,3 +1,35 @@
 #!/bin/sh
 clear
+
 echo "Welcome to your piLAb!"
+echo ""
+
+# Display System Date and Time
+echo "Current Date & Time: $(date)"
+echo ""
+
+# Display System Uptime
+echo "System Uptime:"
+uptime
+echo ""
+
+# Display Memory Usage
+echo "Memory Usage:"
+free -h
+echo ""
+
+# Display Disk Usage
+echo "Disk Usage:"
+df -h
+echo ""
+
+# Display Running Docker Containers
+if command -v docker &> /dev/null
+then
+    echo "Running Docker Containers:"
+    docker ps --format "table {{.Names}}\t{{.Image}}\t{{.Status}}"
+    echo ""
+else
+    echo "Docker is not installed."
+    echo ""
+fi
