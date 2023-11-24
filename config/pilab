@@ -18,6 +18,7 @@ show_help() {
     echo "    change-ssid [new-ssid]                   - Change the WiFi SSID."
     echo "    show-password                            - Show the current WiFi password."
     echo "    change-password [new-password]           - Change the WiFi password."
+    echo "    status                                   - Show the status of the WiFi network, SSID, and frequency."
     echo "  clean                                      - Perform system cleanup and Docker maintenance."
     echo "  update                                     - Update system packages and Docker containers."
     echo "  help, -h, --help                           - Show this help message."
@@ -94,6 +95,22 @@ wifi_control() {
             sudo sed -i "s/^wpa_passphrase=.*/wpa_passphrase=$2/" "$HOSTAPD_CONF"
             sudo systemctl restart hostapd
             echo "Password changed."
+            ;;
+        status)
+            echo "WiFi Status:"
+            sudo systemctl is-active --quiet hostapd && echo "Running" || echo "Stopped"
+
+            echo "Current SSID:"
+            grep "^ssid=" "$HOSTAPD_CONF" | cut -d'=' -f2
+
+            hw_mode=$(grep "^hw_mode=" "$HOSTAPD_CONF" | cut -d'=' -f2)
+            if [ "$hw_mode" = "g" ]; then
+                echo "Frequency: 2.4 GHz"
+            elif [ "$hw_mode" = "a" ]; then
+                echo "Frequency: 5 GHz"
+            else
+                echo "Frequency: Unknown"
+            fi
             ;;
         *)
             show_help
