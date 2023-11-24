@@ -18,7 +18,7 @@ show_help() {
     echo "    change-ssid [new-ssid]                   - Change the WiFi SSID."
     echo "    show-password                            - Show the current WiFi password."
     echo "    change-password [new-password]           - Change the WiFi password."
-    echo "    status                                  e - Show the status of the WiFi network, SSID, and frequency."
+    echo "    status                                   - Show the status of the WiFi network, SSID, and frequency."
     echo "  clean                                      - Perform system cleanup and Docker maintenance."
     echo "  update                                     - Update system packages and Docker containers."
     echo "  help, -h, --help                           - Show this help message."
@@ -26,8 +26,8 @@ show_help() {
     echo "Examples:"
     echo "  pilab wifi start                           - Start the WiFi access point."
     echo "  pilab wifi 5ghz                            - Switch to 5 GHz band."
-    echo "  pilab wifi change-ssid MyNewSSID           - Change the WiFi SSID to 'MyNewSSID'."
-    echo "  pilab wifi change-password MyNewPassword   - Change the WiFi password to 'MyNewPassword'."
+    echo "  pilab wifi change-ssid                     - Change the WiFi SSID."
+    echo "  pilab wifi change-password                 - Change the WiFi password."
     echo "  pilab clean                                - Perform system cleanup and Docker maintenance."
     echo "  pilab update                               - Update system packages and Docker containers."
 }
@@ -75,13 +75,15 @@ wifi_control() {
             grep "^ssid=" "$HOSTAPD_CONF" | cut -d'=' -f2
             ;;
         change-ssid|change-name)
-            if [ -z "$2" ]; then
-                echo "Please specify a new SSID."
+            echo "Enter new WiFi SSID:"
+            read new_ssid
+            if [ -z "$new_ssid" ]; then
+                echo "No SSID entered. Operation cancelled."
                 exit 1
             fi
-            sudo sed -i "s/^ssid=.*/ssid=$2/" "$HOSTAPD_CONF"
+            sudo sed -i "s/^ssid=.*/ssid=$new_ssid/" "$HOSTAPD_CONF"
             sudo systemctl restart hostapd
-            echo "SSID changed to $2."
+            echo "SSID changed to $new_ssid."
             ;;
         show-password|show-pwd)
             echo "Current WiFi Password:"
@@ -94,17 +96,14 @@ wifi_control() {
             echo "Confirm new WiFi password:"
             read -s confirm_pwd
             echo
-
             if [ "$new_pwd" != "$confirm_pwd" ]; then
                 echo "Passwords do not match. Operation cancelled."
                 exit 1
             fi
-
             if [ -z "$new_pwd" ]; then
                 echo "No password entered. Operation cancelled."
                 exit 1
             fi
-
             sudo sed -i "s/^wpa_passphrase=.*/wpa_passphrase=$new_pwd/" "$HOSTAPD_CONF"
             sudo systemctl restart hostapd
             echo "Password changed."
@@ -112,10 +111,8 @@ wifi_control() {
         status)
             echo "WiFi Status:"
             sudo systemctl is-active --quiet hostapd && echo "Running" || echo "Stopped"
-
             echo "Current SSID:"
             grep "^ssid=" "$HOSTAPD_CONF" | cut -d'=' -f2
-
             hw_mode=$(grep "^hw_mode=" "$HOSTAPD_CONF" | cut -d'=' -f2)
             if [ "$hw_mode" = "g" ]; then
                 echo "Frequency: 2.4 GHz"
