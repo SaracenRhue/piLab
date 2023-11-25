@@ -55,5 +55,6 @@ sudo systemctl restart dhcpcd
 
 # Permissions
 sudo chmod -R u+rwx /DATA
-sudo smbpasswd -a $(whoami)
+sudo usermod -aG docker $USER
+sudo smbpasswd -a $USER
 sudo tailscale up # --advertise-routes=10.10.20.0/24
