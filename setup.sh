@@ -20,7 +20,7 @@ sudo DEBIAN_FRONTEND=noninteractive apt install -y netfilter-persistent iptables
 curl -fsSL https://get.casaos.io | sudo bash
 curl -fsSL https://tailscale.com/install.sh | sh
 sudo apt autoremove -y && sudo apt clean
-sudo deborphan | xargs sudo apt purge
+sudo deborphan | xargs sudo apt purge -y
 
 # Configurations
 # Loop through the files and download each one
