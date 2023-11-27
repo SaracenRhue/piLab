@@ -172,6 +172,8 @@ system_update() {
     sudo apt update
     sudo apt upgrade -y
 
+    curl -fsSL https://get.casaos.io/update | sudo bash
+
     # Update Docker containers
     if command -v docker &> /dev/null
     then
