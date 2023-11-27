@@ -1,12 +1,7 @@
 #!/bin/bash
 
-docker run -d \
-  --name=firefox \
-  -e PUID=1000 \
-  -e PGID=1000 \
-  -e TZ=Europe/Vienna \
-  -p 3000:3000 \
-  -v /DATA/AppData/firefox:/config \
-  --shm-size="1gb" \
-  --restart unless-stopped \
-  lscr.io/linuxserver/firefox:latest
+sudo docker run -d -p 8000:8000 -p 9000:9000 --name portainer \
+--restart=always \
+-v /var/run/docker.sock:/var/run/docker.sock \
+-v /DATA/AppData/portainer:/data \
+portainer/portainer-ce

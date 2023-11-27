@@ -209,8 +209,37 @@ system_update() {
     echo "System update complete."
 }
 
+container_install() {
+    case "$1" in
+        portainer)
+            bash -c "$(curl -fsSL https://raw.githubusercontent.com/SaracenRhue/piLab/main/containers/portainer.sh)"
+            ;;
+        code|code-server)
+            bash -c "$(curl -fsSL https://raw.githubusercontent.com/SaracenRhue/piLab/main/containers/code_server.sh)"
+            ;;
+        firefox)
+            bash -c "$(curl -fsSL https://raw.githubusercontent.com/SaracenRhue/piLab/main/containers/firefox.sh)"
+            ;;
+        mongo|mongodb)
+            bash -c "$(curl -fsSL https://raw.githubusercontent.com/SaracenRhue/piLab/main/containers/mongodb.sh)"
+            ;;
+        minecraft|minecraft-server)
+            bash -c "$(curl -fsSL https://raw.githubusercontent.com/SaracenRhue/piLab/main/containers/minecraft_server.sh)"
+            ;;
+        list|help)
+            echo "Availible Containers:"
+            echo "portainer, code-server, firefox, mongodb, minecraft-server"
+            ;;
+        *)
+        echo "Invalid command. For a list of commands, use 'pilab help'."
+        exit 1
+    esac
+}
 
 case "$1" in
+    install|i)
+        container_install "$2"
+        ;;
     wifi)
         wifi_control "$2"
         ;;

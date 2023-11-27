@@ -31,6 +31,7 @@ done
 echo "Download complete."
 sudo hostnamectl set-hostname pilab
 sudo systemctl unmask hostapd.service
+sudo /etc/dhcpcd.conf /etc/dhcpcd.conf.old
 sudo mv dhcpcd.conf /etc/dhcpcd.conf
 sudo mv routed-ap.conf /etc/sysctl.d/routed-ap.conf
 sudo iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
@@ -39,6 +40,7 @@ sudo iptables -A FORWARD -i wlan0 -o eth0 -j ACCEPT
 sudo netfilter-persistent save
 sudo mv /etc/dnsmasq.conf /etc/dnsmasq.conf.old
 sudo mv dnsmasq.conf /etc/dnsmasq.conf
+sudo mkdir /etc/hostapd/
 sudo mv hostapd.conf /etc/hostapd/hostapd.conf
 sudo mv pilab /usr/local/bin/pilab
 sudo mv /etc/update-motd.d/99-custom
@@ -57,4 +59,5 @@ sudo systemctl restart dhcpcd
 sudo chmod -R u+rwx /DATA
 sudo usermod -aG docker $USER
 sudo smbpasswd -a $USER
+
 sudo tailscale up # --advertise-routes=10.10.20.0/24

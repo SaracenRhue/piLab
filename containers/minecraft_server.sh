@@ -9,7 +9,7 @@ read memory
 echo "Enter minecraft version (e.g. 1.19)"
 read version
 
-docker run -d \
+sudo docker run -d \
   --name=minecraft \
   -e TZ=Europe/Berlin \
   -e TYPE=paper \
