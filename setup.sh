@@ -19,6 +19,7 @@ sudo apt install -y wget git htop samba dnsmasq hostapd dhcpcd5 deborphan
 sudo DEBIAN_FRONTEND=noninteractive apt install -y netfilter-persistent iptables-persistent
 curl -fsSL https://get.casaos.io | sudo bash
 curl -fsSL https://tailscale.com/install.sh | sh
+sudo apt install -y python-is-python3
 sudo apt autoremove -y && sudo apt clean
 sudo deborphan | xargs sudo apt purge -y
 
