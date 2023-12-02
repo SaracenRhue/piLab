@@ -48,6 +48,11 @@ sudo mv /etc/update-motd.d/99-custom
 sudo chmod +x /usr/local/bin/pilab
 sudo chmod +x /etc/update-motd.d/99-custom
 
+# Permissions
+sudo chmod -R u+rwx /DATA
+sudo usermod -aG docker $USER
+sudo smbpasswd -a $USER
+
 # Services
 sudo systemctl enable hostapd
 sudo systemctl enable dnsmasq
@@ -55,10 +60,6 @@ sudo systemctl enable dhcpcd
 sudo systemctl restart hostapd
 sudo systemctl restart dnsmasq
 sudo systemctl restart dhcpcd
-
-# Permissions
-sudo chmod -R u+rwx /DATA
-sudo usermod -aG docker $USER
-sudo smbpasswd -a $USER
+sudo systemctl restart smbd
 
 sudo tailscale up # --advertise-routes=10.10.20.0/24
