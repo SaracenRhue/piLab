@@ -11,6 +11,7 @@ FILES=(
     "hostapd.conf"
     "pilab"
     "99-custom"
+    "smb.conf"
 )
 
 # Dependencies
@@ -45,6 +46,7 @@ sudo mkdir /etc/hostapd/
 sudo mv hostapd.conf /etc/hostapd/hostapd.conf
 sudo mv pilab /usr/local/bin/pilab
 sudo mv /etc/update-motd.d/99-custom
+sudo mv smb.conf /etc/samba/smb.conf
 sudo chmod +x /usr/local/bin/pilab
 sudo chmod +x /etc/update-motd.d/99-custom
 
@@ -57,6 +59,7 @@ sudo smbpasswd -a $USER
 sudo systemctl enable hostapd
 sudo systemctl enable dnsmasq
 sudo systemctl enable dhcpcd
+sudo systemctl enable smbd
 sudo systemctl restart hostapd
 sudo systemctl restart dnsmasq
 sudo systemctl restart dhcpcd
