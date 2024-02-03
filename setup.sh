@@ -11,7 +11,7 @@ FILES=(
     "hostapd.conf"
     #"pilab"
     "99-custom"
-    "smb.conf"
+    #"smb.conf"
 )
 
 # Dependencies
@@ -45,12 +45,12 @@ sudo mkdir /etc/hostapd/
 sudo mv hostapd.conf /etc/hostapd/hostapd.conf
 #sudo mv pilab /usr/local/bin/pilab
 sudo mv /etc/update-motd.d/99-custom
-sudo mv smb.conf /etc/samba/smb.conf
+#sudo mv smb.conf /etc/samba/smb.conf
 #sudo chmod +x /usr/local/bin/pilab
 sudo chmod +x /etc/update-motd.d/99-custom
 
 # Permissions
-sudo smbpasswd -a $USER
+#sudo smbpasswd -a $USER
 
 # Services
 sudo systemctl enable hostapd
