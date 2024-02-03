@@ -9,7 +9,7 @@ FILES=(
     "routed-ap.conf"
     "dnsmasq.conf"
     "hostapd.conf"
-    "pilab"
+    #"pilab"
     "99-custom"
     "smb.conf"
 )
@@ -18,7 +18,6 @@ FILES=(
 sudo apt update && sudo apt upgrade -y
 sudo apt install -y wget git htop samba dnsmasq hostapd dhcpcd5 deborphan
 sudo DEBIAN_FRONTEND=noninteractive apt install -y netfilter-persistent iptables-persistent
-curl -fsSL https://get.casaos.io | sudo bash
 curl -fsSL https://tailscale.com/install.sh | sh
 sudo apt install -y python-is-python3
 sudo apt autoremove -y && sudo apt clean
@@ -44,15 +43,13 @@ sudo mv /etc/dnsmasq.conf /etc/dnsmasq.conf.old
 sudo mv dnsmasq.conf /etc/dnsmasq.conf
 sudo mkdir /etc/hostapd/
 sudo mv hostapd.conf /etc/hostapd/hostapd.conf
-sudo mv pilab /usr/local/bin/pilab
+#sudo mv pilab /usr/local/bin/pilab
 sudo mv /etc/update-motd.d/99-custom
 sudo mv smb.conf /etc/samba/smb.conf
-sudo chmod +x /usr/local/bin/pilab
+#sudo chmod +x /usr/local/bin/pilab
 sudo chmod +x /etc/update-motd.d/99-custom
 
 # Permissions
-sudo chmod -R u+rwx /DATA
-sudo usermod -aG docker $USER
 sudo smbpasswd -a $USER
 
 # Services
@@ -64,5 +61,7 @@ sudo systemctl restart hostapd
 sudo systemctl restart dnsmasq
 sudo systemctl restart dhcpcd
 sudo systemctl restart smbd
+
+sudo apt install cockpit cockpit-packagekit cockpit-storaged cockpit-machines cockpit-podman -y
 
 sudo tailscale up # --advertise-routes=10.10.20.0/24
