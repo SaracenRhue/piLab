@@ -33,7 +33,7 @@ done
 echo "Download complete."
 sudo hostnamectl set-hostname pilab
 sudo systemctl unmask hostapd.service
-sudo /etc/dhcpcd.conf /etc/dhcpcd.conf.old
+sudo mv /etc/dhcpcd.conf /etc/dhcpcd.conf.old
 sudo mv dhcpcd.conf /etc/dhcpcd.conf
 sudo mv routed-ap.conf /etc/sysctl.d/routed-ap.conf
 sudo iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
