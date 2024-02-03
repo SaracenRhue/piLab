@@ -16,7 +16,7 @@ FILES=(
 
 # Dependencies
 sudo apt update && sudo apt upgrade -y
-sudo apt install -y wget git htop samba dnsmasq hostapd dhcpcd5 deborphan
+sudo apt install -y wget git htop tmux samba dnsmasq hostapd dhcpcd5 deborphan
 sudo DEBIAN_FRONTEND=noninteractive apt install -y netfilter-persistent iptables-persistent
 curl -fsSL https://tailscale.com/install.sh | sh
 sudo apt install -y python-is-python3
