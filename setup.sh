@@ -11,7 +11,7 @@ FILES=(
     "hostapd.conf"
     #"pilab"
     "99-custom"
-    #"smb.conf"
+    "smb.conf"
 )
 
 # Dependencies
@@ -45,12 +45,10 @@ sudo mkdir /etc/hostapd/
 sudo mv hostapd.conf /etc/hostapd/hostapd.conf
 #sudo mv pilab /usr/local/bin/pilab
 sudo mv /etc/update-motd.d/99-custom
-#sudo mv smb.conf /etc/samba/smb.conf
+sudo mv smb.conf /etc/samba/smb.conf
 #sudo chmod +x /usr/local/bin/pilab
 sudo chmod +x /etc/update-motd.d/99-custom
 
-# Permissions
-#sudo smbpasswd -a $USER
 
 # Services
 sudo systemctl enable hostapd
@@ -62,6 +60,15 @@ sudo systemctl restart dnsmasq
 sudo systemctl restart dhcpcd
 sudo systemctl restart smbd
 
-sudo apt install cockpit cockpit-packagekit cockpit-storaged cockpit-machines cockpit-podman -y
+sudo apt install cockpit cockpit-packagekit cockpit-storaged cockpit-machines cockpit-podman cockpit-pcp -y
+curl -sSL https://repo.45drives.com/setup | sudo bash
+sudo apt-get update && sudo apt install cockpit-file-sharing cockpit-navigator -y
+
+sudo mkdir /appdata && chmod 777 /appdata
+
+mkdir /appdata/minecraft
+podman run -d --name=minecraft -e TZ=Europe/Berlin -e TYPE=paper -e OPS=Caeser -e MODE=survival -e MEMORY=1G -e VERSION=1.19 -e EULA=true -p 25565:25565/tcp -v /appdata/minecraft:/data:rw  docker.io/itzg/minecraft-server:latest
+podman stop minecraft
+
 
 sudo tailscale up # --advertise-routes=10.10.20.0/24
