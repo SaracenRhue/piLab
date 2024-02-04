@@ -70,5 +70,10 @@ mkdir /appdata/minecraft
 podman run -d --name=minecraft -e TZ=Europe/Berlin -e TYPE=paper -e OPS=Caeser -e MODE=survival -e MEMORY=1G -e VERSION=1.19 -e EULA=true -p 25565:25565/tcp -v /appdata/minecraft:/data:rw  docker.io/itzg/minecraft-server:latest
 podman stop minecraft
 
+#curl -fsSL https://get.docker.com | sh
+#sudo usermod -aG docker $USER
+#sudo apt install docker-compose -y
+#sudo systemctl stop docker
+#sudo systemctl disable docker
 
 sudo tailscale up # --advertise-routes=10.10.20.0/24
