@@ -62,7 +62,7 @@ sudo systemctl restart smbd
 
 sudo apt install cockpit cockpit-packagekit cockpit-storaged cockpit-machines cockpit-podman cockpit-pcp -y
 curl -sSL https://repo.45drives.com/setup | sudo bash
-sudo apt-get update && sudo apt install cockpit-file-sharing cockpit-navigator -y
+sudo apt update && sudo apt install cockpit-file-sharing cockpit-navigator -y
 
 sudo mkdir /appdata && chmod 777 /appdata
 
