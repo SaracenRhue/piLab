@@ -9,20 +9,25 @@ FILES=(
     "routed-ap.conf"
     "dnsmasq.conf"
     "hostapd.conf"
-    #"pilab"
+    "pilab"
     "99-custom"
     "smb.conf"
 )
 
 # Dependencies
 sudo apt update && sudo apt upgrade -y
-sudo apt install -y wget git htop tmux samba dnsmasq hostapd dhcpcd5 deborphan
+# nala
+echo "deb [arch=amd64,arm64,armhf] http://deb.volian.org/volian/ scar main" | sudo tee /etc/apt/sources.list.d/volian-archive-scar-unstable.list
+wget -qO - https://deb.volian.org/volian/scar.key | sudo tee /etc/apt/trusted.gpg.d/volian-archive-scar-unstable.gpg > /dev/null
+sudo apt update && sudo apt install nala -y
 sudo DEBIAN_FRONTEND=noninteractive apt install -y netfilter-persistent iptables-persistent
+sudo nala install -y wget git htop tmux samba dnsmasq hostapd dhcpcd5 deborphan
+
 curl -fsSL https://tailscale.com/install.sh | sh
-sudo apt install -y python-is-python3
+sudo nala install -y python-is-python3
 
 if [ -n "$ZSH_VERSION" ]; then
-    sudo apt install -y zsh zsh-autosuggestions zsh-syntax-highlighting neofetch
+    sudo nala install -y zsh zsh-autosuggestions zsh-syntax-highlighting neofetch
     echo "plugins=(zsh-autosuggestions)" >> ~/.zshrc
     sudo git clone https://github.com/romkatv/powerlevel10k.git $ZSH_CUSTOM/themes/powerlevel10k
     echo 'ZSH_THEME="powerlevel10k/powerlevel10k"' >> ~/.zshrc
@@ -50,10 +55,10 @@ sudo mv /etc/dnsmasq.conf /etc/dnsmasq.conf.old
 sudo mv dnsmasq.conf /etc/dnsmasq.conf
 sudo mkdir /etc/hostapd/
 sudo mv hostapd.conf /etc/hostapd/hostapd.conf
-#sudo mv pilab /usr/local/bin/pilab
+sudo mv pilab /usr/local/bin/pilab
 sudo mv /etc/update-motd.d/99-custom
 sudo mv smb.conf /etc/samba/smb.conf
-#sudo chmod +x /usr/local/bin/pilab
+sudo chmod +x /usr/local/bin/pilab
 sudo chmod +x /etc/update-motd.d/99-custom
 
 
@@ -67,18 +72,11 @@ sudo systemctl restart dnsmasq
 sudo systemctl restart dhcpcd
 sudo systemctl restart smbd
 
-sudo apt install cockpit cockpit-packagekit cockpit-storaged cockpit-machines cockpit-podman cockpit-pcp -y
+sudo nala install cockpit cockpit-packagekit cockpit-storaged cockpit-machines cockpit-podman cockpit-pcp -y
 curl -sSL https://repo.45drives.com/setup | sudo bash
-sudo apt update && sudo apt install cockpit-file-sharing cockpit-navigator -y
+sudo nala update && sudo nala install cockpit-file-sharing cockpit-navigator -y
 
 sudo mkdir /appdata && chmod 777 /appdata
-
-mkdir /appdata/minecraft
-podman run -d --name=minecraft -e TZ=Europe/Berlin -e TYPE=paper -e OPS=Caeser -e MODE=survival -e MEMORY=1G -e VERSION=1.19 -e EULA=true -p 25565:25565/tcp -v /appdata/minecraft:/data:rw  docker.io/itzg/minecraft-server:latest
-podman stop minecraft
-
-mkdir /appdata/mongo
-podman run -d --name=mongo -p 27017:27017 -v /appdata/mongo:/data/db docker.io/mongo:bionic
 
 
 curl -fsSL https://get.docker.com | sh

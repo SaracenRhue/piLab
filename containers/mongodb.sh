@@ -1,8 +1,10 @@
 #!/bin/bash
 
-sudo docker run -d \
+mkdir /appdata/mongo
+podman run -d \
     --name=mongo \
     -p 27017:27017 \
-    -v /DATA/AppData/mongo:/data/db \
-    --restart unless-stopped \
-    mongo:bionic
+    -v /appdata/mongo:/data/db \
+    docker.io/mongo:bionic
+
+echo "mongodb running on port 27017"

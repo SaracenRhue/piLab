@@ -3,7 +3,7 @@
 HOSTAPD_CONF="/etc/hostapd/hostapd.conf"
 
 show_help() {
-    echo "Usage: pilab {command} [options]"
+    echo "Usage: lab {command} [options]"
     echo ""
     echo "Commands:"
     echo "  wifi {command}                              - Control the WiFi access point."
@@ -25,12 +25,12 @@ show_help() {
     echo "  help, -h, --help                           - Show this help message."
     echo ""
     echo "Examples:"
-    echo "  pilab wifi start                           - Start the WiFi access point."
-    echo "  pilab wifi 5ghz                            - Switch to 5 GHz band."
-    echo "  pilab wifi change-ssid                     - Change the WiFi SSID."
-    echo "  pilab wifi change-password                 - Change the WiFi password."
-    echo "  pilab clean                                - Perform system cleanup and Docker maintenance."
-    echo "  pilab update                               - Update system packages and Docker containers."
+    echo "  lab wifi start                           - Start the WiFi access point."
+    echo "  lab wifi 5ghz                            - Switch to 5 GHz band."
+    echo "  lab wifi change-ssid                     - Change the WiFi SSID."
+    echo "  lab wifi change-password                 - Change the WiFi password."
+    echo "  lab clean                                - Perform system cleanup and Docker maintenance."
+    echo "  lab update                               - Update system packages and Docker containers."
 }
 
 
@@ -146,110 +146,60 @@ system_clean() {
     echo "Performing system cleanup..."
 
     # Clean up temporary files
-    sudo rm -rf /tmp/*
-    sudo rm -rf /var/tmp/*
-
+    sudo rm -rf /tmp/* && sudo rm -rf /var/tmp/*
     # Clean package cache
-    sudo apt clean
-
+    sudo nala clean
     # Remove unused packages
-    sudo apt autoremove -y
-
-    # Clean Docker (if Docker is installed)
-    if command -v docker &> /dev/null
-    then
-        echo "Cleaning up Docker..."
-        sudo docker system prune -af
-    else
-        echo "Docker is not installed. Skipping Docker cleanup."
-    fi
+    sudo nala autoremove -y
 
     echo "System cleanup complete."
 }
 
 system_update() {
     echo "Updating system packages..."
-    sudo apt update
-    sudo apt upgrade -y
-
-    curl -fsSL https://get.casaos.io/update | sudo bash
-
-    # Update Docker containers
-    if command -v docker &> /dev/null
-    then
-        echo "Updating Docker containers..."
-
-        # Fetch a list of all containers (running and stopped)
-        containers=$(sudo docker ps -a --format '{{.Names}}')
-
-        for container in $containers; do
-            echo "Updating $container..."
-
-            # Find the image used by the container
-            image=$(sudo docker inspect --format='{{.Config.Image}}' $container)
-
-            # Check if the container is running
-            is_running=$(sudo docker inspect --format='{{.State.Running}}' $container)
-
-            # Pull the latest version of the image
-            sudo docker pull $image
-
-            # Recreate the container with the same parameters
-            sudo docker stop $container
-            sudo docker rm $container
-            sudo docker create --name $container $image
-
-            # Start the container if it was originally running
-            if [ "$is_running" = "true" ]; then
-                sudo docker start $container
-            fi
-        done
-    else
-        echo "Docker is not installed. Skipping Docker updates."
-    fi
+    sudo nala update && sudo nala upgrade -y
+    sudo nala autoremove -y
 
     echo "System update complete."
 }
 
-container_install() {
+install() {
     case "$1" in
-        portainer)
-            bash -c "$(curl -fsSL https://raw.githubusercontent.com/SaracenRhue/piLab/main/containers/portainer.sh)"
-            ;;
-        code|code-server)
-            bash -c "$(curl -fsSL https://raw.githubusercontent.com/SaracenRhue/piLab/main/containers/code_server.sh)"
-            ;;
-        firefox)
-            bash -c "$(curl -fsSL https://raw.githubusercontent.com/SaracenRhue/piLab/main/containers/firefox.sh)"
-            ;;
         mongo|mongodb)
-            bash -c "$(curl -fsSL https://raw.githubusercontent.com/SaracenRhue/piLab/main/containers/mongodb.sh)"
+            curl -fsSL https://raw.githubusercontent.com/SaracenRhue/piLab/main/containers/mongodb.sh | sh
             ;;
         minecraft|minecraft-server)
-            bash -c "$(curl -fsSL https://raw.githubusercontent.com/SaracenRhue/piLab/main/containers/minecraft_server.sh)"
+            curl -fsSL https://raw.githubusercontent.com/SaracenRhue/piLab/main/containers/minecraft_server.sh | sh
             ;;
         list|help)
             echo "Availible Containers:"
-            echo "portainer, code-server, firefox, mongodb, minecraft-server"
+            echo "mongodb, minecraft-server"
             ;;
-        *)
-        echo "Invalid command. For a list of commands, use 'pilab help'."
-        exit 1
+        *) 
+        sudo nala install -y "$1"
+        ;;
     esac
+}
+
+remove() {
+    sudo nala remove -y "$1"
 }
 
 case "$1" in
     install|i)
-        container_install "$2"
+        install "$2"
+        ;;
+    update|u)
+        system_update
+        ;;
+    remove|r)
+        remove "$2"
         ;;
     wifi)
         wifi_control "$2"
         ;;
-    clean)
+    clean|c)
         system_clean
-        ;;
-    update)
-        system_update
         ;;
     "backup appdata")
         backup_appdata

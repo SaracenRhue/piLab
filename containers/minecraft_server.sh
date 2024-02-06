@@ -4,12 +4,13 @@ echo "Enter OP username"
 read user
 echo "Enter gamemode (e.g. survival)"
 read gamemode
-echo "Enter memory allocation (e.g. 4G)"
+echo "Enter memory allocation (e.g. 1G)"
 read memory
 echo "Enter minecraft version (e.g. 1.19)"
 read version
 
-sudo docker run -d \
+mkdir /appdata/minecraft
+podman run -d \
   --name=minecraft \
   -e TZ=Europe/Berlin \
   -e TYPE=paper \
@@ -20,6 +21,7 @@ sudo docker run -d \
   -e VERSION=$version \
   -e EULA=true \
   -p 25565:25565/tcp \
-  -v /DATA/AppData/minecraft:/data:rw itzg/minecraft-server:latest
-  --restart unless-stopped \
-  itzg/minecraft-server:latest
+  -v /appdata/minecraft:/data:rw itzg/minecraft-server:latest
+  docker.io/itzg/minecraft-server:latest
+
+  echo "minecraft server running on port 25565"
