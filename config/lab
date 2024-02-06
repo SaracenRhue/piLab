@@ -21,7 +21,6 @@ show_help() {
     echo "    status                                   - Show the status of the WiFi network, SSID, and frequency."
     echo "  clean                                      - Perform system cleanup and Docker maintenance."
     echo "  update                                     - Update system packages and Docker containers."
-    echo "  backup appdata                             - Creates a ZIP archive of /DATA/AppData."
     echo "  help, -h, --help                           - Show this help message."
     echo ""
     echo "Examples:"
@@ -129,19 +128,6 @@ wifi_control() {
     esac
 }
 
-backup_appdata() {
-    echo "Backing up /DATA/AppData..."
-    TIMESTAMP=$(date "+%Y%m%d-%H%M%S")
-    BACKUP_FILE="$HOME/appdata-backup-$TIMESTAMP.zip"
-
-    if [ -d "/DATA/AppData" ]; then
-        zip -r "$BACKUP_FILE" "/DATA/AppData"
-        echo "Backup created at $BACKUP_FILE"
-    else
-        echo "/DATA/AppData directory does not exist. Backup aborted."
-    fi
-}
-
 system_clean() {
     echo "Performing system cleanup..."
 
@@ -185,7 +171,68 @@ remove() {
     sudo nala remove -y "$1"
 }
 
+lab_config_dialog() {
+    while true; do
+        EXEC_CHOICE=$(dialog --clear --backtitle "Lab Configuration" \
+            --title "Main Menu" \
+            --menu "Choose an operation:" 15 50 6 \
+            "1" "Manage WiFi" \
+            "2" "System Cleanup" \
+            "3" "System Update" \
+            "4" "Install Software/Containers" \
+            "5" "Remove Software" \
+            "6" "Exit" \
+            3>&1 1>&2 2>&3)
+
+        case $EXEC_CHOICE in
+            1)
+                WIFI_CHOICE=$(dialog --clear --backtitle "WiFi Management" \
+                    --title "WiFi Menu" \
+                    --menu "Choose an operation:" 15 50 8 \
+                    "start" "Start WiFi" \
+                    "stop" "Stop WiFi" \
+                    "restart" "Restart WiFi" \
+                    "hide" "Hide SSID" \
+                    "show" "Show SSID" \
+                    "24ghz" "Switch to 2.4 GHz" \
+                    "5ghz" "Switch to 5 GHz" \
+                    "status" "Show WiFi Status" \
+                    3>&1 1>&2 2>&3)
+                
+                [ -n "$WIFI_CHOICE" ] && wifi_control $WIFI_CHOICE
+                ;;
+            2)
+                system_clean
+                ;;
+            3)
+                system_update
+                ;;
+            4)
+                INSTALL_CHOICE=$(dialog --clear --backtitle "Install Software/Containers" \
+                    --inputbox "Enter the name of the software or container to install:" 8 40 \
+                    3>&1 1>&2 2>&3)
+                
+                [ -n "$INSTALL_CHOICE" ] && install $INSTALL_CHOICE
+                ;;
+            5)
+                REMOVE_CHOICE=$(dialog --clear --backtitle "Remove Software" \
+                    --inputbox "Enter the name of the software to remove:" 8 40 \
+                    3>&1 1>&2 2>&3)
+                
+                [ -n "$REMOVE_CHOICE" ] && remove $REMOVE_CHOICE
+                ;;
+            6)
+                break
+                ;;
+        esac
+    done
+}
+
+
 case "$1" in
+    config|dialog)
+        lab_config_dialog
+        ;;
     install|i)
         install "$2"
         ;;
@@ -200,9 +247,6 @@ case "$1" in
         ;;
     clean|c)
         system_clean
-        ;;
-    "backup appdata")
-        backup_appdata
         ;;
     help|-h|--help)
         show_help
