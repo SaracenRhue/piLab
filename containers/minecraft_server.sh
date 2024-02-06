@@ -9,7 +9,7 @@ read memory
 echo "Enter minecraft version (e.g. 1.19)"
 read version
 
-mkdir /appdata/minecraft
+echo "Creating volume folders" && mkdir /appdata/minecraft
 podman run -d \
   --name=minecraft \
   -e TZ=Europe/Berlin \

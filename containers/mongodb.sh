@@ -1,6 +1,6 @@
 #!/bin/bash
 
-mkdir /appdata/mongo
+echo "Creating volume folders" && mkdir /appdata/mongo
 podman run -d \
     --name=mongo \
     -p 27017:27017 \
