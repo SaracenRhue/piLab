@@ -30,9 +30,6 @@ if [ -n "$ZSH_VERSION" ]; then
     echo "clear && neofetch" >> ~/.zshrc
 fi
 
-sudo apt autoremove -y && sudo apt clean
-sudo deborphan | xargs sudo apt purge -y
-
 # Configurations
 # Loop through the files and download each one
 for file in "${FILES[@]}"; do
