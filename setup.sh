@@ -9,7 +9,7 @@ FILES=(
     "routed-ap.conf"
     "dnsmasq.conf"
     "hostapd.conf"
-    "pilab"
+    "lab"
     "99-custom"
     "smb.conf"
 )
@@ -55,10 +55,10 @@ sudo mv /etc/dnsmasq.conf /etc/dnsmasq.conf.old
 sudo mv dnsmasq.conf /etc/dnsmasq.conf
 sudo mkdir /etc/hostapd/
 sudo mv hostapd.conf /etc/hostapd/hostapd.conf
-sudo mv pilab /usr/local/bin/pilab
+sudo mv lab /usr/local/bin/lab
 sudo mv /etc/update-motd.d/99-custom
 sudo mv smb.conf /etc/samba/smb.conf
-sudo chmod +x /usr/local/bin/pilab
+sudo chmod +x /usr/local/bin/lab
 sudo chmod +x /etc/update-motd.d/99-custom
 
 
