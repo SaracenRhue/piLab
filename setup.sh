@@ -20,6 +20,16 @@ sudo apt install -y wget git htop tmux samba dnsmasq hostapd dhcpcd5 deborphan
 sudo DEBIAN_FRONTEND=noninteractive apt install -y netfilter-persistent iptables-persistent
 curl -fsSL https://tailscale.com/install.sh | sh
 sudo apt install -y python-is-python3
+
+if [ -n "$ZSH_VERSION" ]; then
+    sudo apt install -y zsh zsh-autosuggestions zsh-syntax-highlighting neofetch
+    echo "plugins=(zsh-autosuggestions)" >> ~/.zshrc
+    sudo git clone https://github.com/romkatv/powerlevel10k.git $ZSH_CUSTOM/themes/powerlevel10k
+    echo 'ZSH_THEME="powerlevel10k/powerlevel10k"' >> ~/.zshrc
+    curl -L http://install.ohmyz.sh | sh
+    echo "clear && neofetch" >> ~/.zshrc
+fi
+
 sudo apt autoremove -y && sudo apt clean
 sudo deborphan | xargs sudo apt purge -y
 
@@ -70,10 +80,14 @@ mkdir /appdata/minecraft
 podman run -d --name=minecraft -e TZ=Europe/Berlin -e TYPE=paper -e OPS=Caeser -e MODE=survival -e MEMORY=1G -e VERSION=1.19 -e EULA=true -p 25565:25565/tcp -v /appdata/minecraft:/data:rw  docker.io/itzg/minecraft-server:latest
 podman stop minecraft
 
-#curl -fsSL https://get.docker.com | sh
-#sudo usermod -aG docker $USER
-#sudo apt install docker-compose -y
-#sudo systemctl stop docker
-#sudo systemctl disable docker
+curl -fsSL https://get.docker.com | sh
+sudo usermod -aG docker $USER
+sudo systemctl stop docker
+sudo systemctl disable docker
 
+sudo apt autoremove -y && sudo apt clean
+sudo deborphan | xargs sudo apt purge -y
+read -p "Press ENTER to finish setup..."
+
+chsh -s $(which zsh)
 sudo tailscale up # --advertise-routes=10.10.20.0/24
