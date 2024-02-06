@@ -143,9 +143,11 @@ system_clean() {
 
 system_update() {
     echo "Updating system packages..."
-    sudo nala update && sudo nala upgrade -y
-    sudo nala autoremove -y
-
+    sudo nala update && sudo nala upgrade -y && sudo nala autoremove -y
+    # update lab script
+    echo "Updating lab script..."
+    wget -q https://raw.githubusercontent.com/SaracenRhue/piLab/main/config/lab && sudo mv lab /usr/local/bin/lab && sudo chmod +x /usr/local/bin/lab
+    
     echo "System update complete."
 }
 
