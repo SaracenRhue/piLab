@@ -254,7 +254,7 @@ case "$1" in
         lab_config_dialog
         ;;
     *)
-        echo "Invalid command. For a list of commands, use 'pilab help'."
+        echo "Invalid command. For a list of commands, use 'lab help'."
         exit 1
 esac
 
