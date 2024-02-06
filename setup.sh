@@ -77,6 +77,10 @@ mkdir /appdata/minecraft
 podman run -d --name=minecraft -e TZ=Europe/Berlin -e TYPE=paper -e OPS=Caeser -e MODE=survival -e MEMORY=1G -e VERSION=1.19 -e EULA=true -p 25565:25565/tcp -v /appdata/minecraft:/data:rw  docker.io/itzg/minecraft-server:latest
 podman stop minecraft
 
+mkdir /appdata/mongo
+podman run -d --name=mongo -p 27017:27017 -v /appdata/mongo:/data/db docker.io/mongo:bionic
+
+
 curl -fsSL https://get.docker.com | sh
 sudo usermod -aG docker $USER
 sudo systemctl stop docker
